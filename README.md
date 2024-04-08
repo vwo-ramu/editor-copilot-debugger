@@ -1,4 +1,4 @@
-# Editor Copilot :: Debug
+# Editor Copilot :: Debugger
 
 Minimal setup to understand debug log.
 
