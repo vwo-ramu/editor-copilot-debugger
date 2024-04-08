@@ -1,9 +1,9 @@
 {
-  "name": "editor-copilot-debug",
+  "name": "editor-copilot-debugger",
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "homepage": "https://vwo-ramu.github.io/editor-copilot-debug",
+  "homepage": "https://vwo-ramu.github.io/editor-copilot-debugger/",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
