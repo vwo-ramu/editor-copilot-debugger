@@ -4,7 +4,7 @@ function App() {
 
   return (
     <>
-      Editor Copilot :: Debugger
+      Editor Copilot :: Debug
     </>
   )
 }
