@@ -1,0 +1,10 @@
+# Ignore artifacts:
+dist
+
+# Ignore all files in the .git directory
+.git
+.github
+
+# Ignore all files in the node_modules directory
+node_modules
+yarn.lock
