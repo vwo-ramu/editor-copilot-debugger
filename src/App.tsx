@@ -1,12 +1,13 @@
-import './App.css'
+import { Button } from '@nextui-org/button';
+import './App.css';
 
 function App() {
-
-  return (
-    <>
-      Editor Copilot :: Debugger
-    </>
-  )
+    return (
+        <>
+            <h4>Editor Copilot :: Debugger</h4>
+            <Button color='primary'>Button</Button>
+        </>
+    );
 }
 
-export default App
+export default App;
