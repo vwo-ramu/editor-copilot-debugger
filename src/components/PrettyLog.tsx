@@ -21,6 +21,7 @@ import { ScrollShadow } from '@nextui-org/scroll-shadow';
 import { Tabs, Tab } from '@nextui-org/tabs';
 import { Avatar } from '@nextui-org/avatar';
 import { Button } from '@nextui-org/button';
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from '@nextui-org/modal';
 
 const GenerationView = ({ title, gen }: { title: string; gen: ConversationGeneration }) => (
     <Card>
@@ -61,18 +62,15 @@ const GenerationView = ({ title, gen }: { title: string; gen: ConversationGenera
 
 // ui for to and from message with bubble layout
 const MessageBubbleView = ({ msg }: { msg: ConversationUserMessage | ConversationBotMessage }) => {
+    const { isOpen, onOpen, onOpenChange } = useDisclosure();
+
     const displayMessageView = (msg: ConversationUserMessage | ConversationBotMessage) => {
         if (msg.role === 'user') {
             return (
                 <div className='flex gap-2 text-sm items-center'>
                     <Avatar className='flex-shrink-0' name='User' />
                     <div className='flex-grow bg-primary-100 p-4 rounded-medium'>{msg.message}</div>
-                    <Button
-                        isIconOnly
-                        color='primary'
-                        variant='ghost'
-                        aria-label='Like'
-                        onClick={() => console.log('todo')}>
+                    <Button isIconOnly color='primary' variant='ghost' aria-label='Like' onPress={onOpen}>
                         <Icon icon='lucide:image' />
                     </Button>
                 </div>
@@ -92,7 +90,25 @@ const MessageBubbleView = ({ msg }: { msg: ConversationUserMessage | Conversatio
             );
         }
     };
-    return <>{displayMessageView(msg)}</>;
+    return (
+        <>
+            {displayMessageView(msg)}
+            <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+                <ModalContent>
+                    {() => (
+                        <>
+                            <ModalHeader className='flex flex-col gap-1'>Attached Image</ModalHeader>
+                            <ModalBody>
+                                {msg.role === 'user' &&
+                                    (msg.img ? <img src={msg.img} alt='User Screenshot' /> : 'No image')}
+                            </ModalBody>
+                            <ModalFooter></ModalFooter>
+                        </>
+                    )}
+                </ModalContent>
+            </Modal>
+        </>
+    );
 };
 
 const PrettyLog = ({ data }: { data: LogData }) => {
