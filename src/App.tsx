@@ -24,7 +24,7 @@ function App() {
             <Navbar shouldHideOnScroll>
                 <NavbarBrand>
                     <Link href='/'>
-                        <img src={vwoWhiteLogo} alt='VWO' className='h-8' />
+                        <img src={vwoWhiteLogo} alt='VWO' className='h-4' />
                     </Link>
                     <h1 className='text-xl ml-4'>Editor Debugger</h1>
                 </NavbarBrand>
