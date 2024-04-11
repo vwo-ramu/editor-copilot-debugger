@@ -8,7 +8,7 @@ import './index.css';
 ReactDOM.createRoot(document.getElementById('root')!).render(
     <React.StrictMode>
         <NextUIProvider>
-            <main className='dark text-foreground bg-background h-screen w-full'>
+            <main className='dark text-foreground bg-background min-h-screen w-full'>
                 <App />
             </main>
         </NextUIProvider>
