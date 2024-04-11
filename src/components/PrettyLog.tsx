@@ -38,7 +38,7 @@ const GenerationView = ({ title, gen }: { title: string; gen: ConversationGenera
                             height='150px'
                             defaultLanguage='javascript'
                             defaultValue={gen.js}
-                            options={{ readOnly: true }}
+                            options={{ readOnly: true, minimap: { enabled: false } }}
                         />
                     </Tab>
                 )}
@@ -51,7 +51,7 @@ const GenerationView = ({ title, gen }: { title: string; gen: ConversationGenera
                             height='150px'
                             defaultLanguage='css'
                             defaultValue={gen.css}
-                            options={{ readOnly: true }}
+                            options={{ readOnly: true, minimap: { enabled: false } }}
                         />
                     </Tab>
                 )}
