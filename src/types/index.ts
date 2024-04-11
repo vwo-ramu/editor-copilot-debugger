@@ -14,6 +14,26 @@ export interface LogData {
     };
 }
 
+export interface ConversationGeneration {
+    css: string;
+    js: string;
+    message: string;
+    reasoning: string;
+
+}
+
+export interface ConversationUserMessage {
+    role: 'user';
+    message: string;
+    img: string; // base64 image
+}
+
+export interface ConversationBotMessage {
+    role: 'bot';
+    message: string;
+    generations: ConversationGeneration[];
+}
+
 export enum LogConversationActions {
     AI_RESPONSE = 'AI response',
     PRE_PROCESS_GENERATIONS = 'preprocessed generations',
@@ -49,19 +69,13 @@ export interface ConversationEventAIResponseAdded {
     message: LogConversationActions.AI_RESPONSE_ADDED;
     timestamp: Date;
     data: {
-        user: {
-            message: string;
-            img: string; // base64 image
-        };
-        bot: {
-            message: string; // summary for response
-            generations: { css: string; js: string; message: string; reasoning: string }[];
-        };
+        user: ConversationUserMessage;
+        bot: ConversationBotMessage;
         conversationMessages: {
             role: 'user' | 'bot';
             content: any;
             _id: string;
-        };
+        }[];
     };
 }
 
@@ -69,7 +83,7 @@ export interface ConversationEventGenerationApplied {
     message: LogConversationActions.GENERATION_APPLIED;
     timestamp: Date;
     data: {
-        generation: { css: string; js: string; message: string; reasoning: string };
+        generation: ConversationGeneration;
     };
 }
 

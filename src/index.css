@@ -9,3 +9,11 @@ body {
     min-width: 320px;
     min-height: 100vh;
 }
+
+.rounded-editor .monaco-editor {
+    border-radius: 0.5rem;
+}
+
+.rounded-editor .monaco-editor .overflow-guard {
+    border-radius: 0.5rem;
+}
