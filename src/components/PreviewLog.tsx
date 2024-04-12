@@ -10,7 +10,7 @@ const PreviewLog = ({ data }: { data: LogData }) => {
         <div className='flex flex-col gap-4'>
             <Divider />
 
-            <div className='text-lg font-semibold'>Preview Log</div>
+            <div className='text-lg font-semibold'>Log Overview</div>
 
             <div className='flex justify-between gap-2'>
                 <Input
@@ -18,7 +18,6 @@ const PreviewLog = ({ data }: { data: LogData }) => {
                     type='text'
                     label='Campaign ID'
                     variant='bordered'
-                    className='max-w-xs'
                     value={data.campaignId}
                 />
 
@@ -27,17 +26,7 @@ const PreviewLog = ({ data }: { data: LogData }) => {
                     type='text'
                     label='Variation ID'
                     variant='bordered'
-                    className='max-w-xs'
                     value={data.variationId}
-                />
-
-                <Input
-                    isReadOnly
-                    type='text'
-                    label='Conversation ID'
-                    variant='bordered'
-                    className='max-w-xs'
-                    value={data.conversationId}
                 />
             </div>
 
