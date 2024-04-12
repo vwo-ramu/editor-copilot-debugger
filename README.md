@@ -1,6 +1,6 @@
 # Editor Copilot :: Debugger
 
-Minimal setup to understand debug log.
+Minimal setup to understand debug log. [Live App on github pages](https://vwo-ramu.github.io/editor-copilot-debugger/)
 
 Currently, two official plugins are available:
 
