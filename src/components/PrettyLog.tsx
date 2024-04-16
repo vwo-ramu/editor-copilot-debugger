@@ -265,8 +265,13 @@ const PrettyLog = ({ data }: { data: LogData }) => {
             prettyLogs.push({ conversationId, data: tempGroupData });
             parsingErrors.push({ conversationId, data: tempParsingErrors });
         }
+
         setParsingErrors(parsingErrors);
-        console.error('PrettyLog :: parsingErrors', parsingErrors);
+        // if there are any errors, log them
+        if (parsingErrors.map((e) => e.data.length).reduce((a, b) => a + b, 0) > 0) {
+            console.error('PrettyLog :: Parsing errors found', parsingErrors);
+        }
+
         console.info('PrettyLog :: prettyLogs', prettyLogs);
         return prettyLogs;
     }, [data]);
