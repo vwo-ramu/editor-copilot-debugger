@@ -39,6 +39,8 @@ export enum LogConversationActions {
     PRE_PROCESS_GENERATIONS = 'preprocessed generations',
     AI_RESPONSE_ADDED = 'AI response added to conversation',
     GENERATION_APPLIED = 'Generation applied',
+    SENDING_MESSAGE = 'Sending message',
+    GOT_SCREENSHOT = 'Got screenshot',
     UNHANDLED = 'Unhandled',
 }
 
@@ -87,6 +89,23 @@ export interface ConversationEventGenerationApplied {
     };
 }
 
+export interface ConversationEventSendingMessage {
+    message: LogConversationActions.SENDING_MESSAGE;
+    timestamp: Date;
+    data: {
+        message: string;
+        editedMessage: {previousId: number | null | undefined, msgRef: undefined}[];
+    };
+}
+
+export interface ConversationEventGotScreenshot {
+    message: LogConversationActions.GOT_SCREENSHOT;
+    timestamp: Date;
+    data: {
+        screenshot: string; // base64 image
+    };
+}
+
 export interface ConversationEventUnhandled {
     message: LogConversationActions.UNHANDLED;
     timestamp: Date;
@@ -100,4 +119,6 @@ export type ConversationEvent =
     | ConversationEventPreProcessGenerations
     | ConversationEventAIResponseAdded
     | ConversationEventGenerationApplied
+    | ConversationEventSendingMessage
+    | ConversationEventGotScreenshot
     | ConversationEventUnhandled;

@@ -189,6 +189,29 @@ const PrettyLog = ({ data }: { data: LogData }) => {
                     continue;
                 }
 
+                if (convEvent.message === LogConversationActions.SENDING_MESSAGE) {
+                    tempGroupData.push({
+                        message: LogConversationActions.SENDING_MESSAGE,
+                        timestamp: new Date(convEvent.timestamp),
+                        data: {
+                            message: convEventData.message,
+                            editedMessage: convEventData.editedMessage,
+                        },
+                    });
+                    continue;
+                }
+
+                if (convEvent.message === LogConversationActions.GOT_SCREENSHOT) {
+                    tempGroupData.push({
+                        message: LogConversationActions.GOT_SCREENSHOT,
+                        timestamp: new Date(convEvent.timestamp),
+                        data: {
+                            screenshot: convEventData.currentElementScreenshot,
+                        },
+                    });
+                    continue;
+                }
+
                 tempGroupData.push({
                     message: LogConversationActions.UNHANDLED,
                     timestamp: new Date(convEvent.timestamp),
@@ -240,6 +263,19 @@ const PrettyLog = ({ data }: { data: LogData }) => {
                 );
             case LogConversationActions.GENERATION_APPLIED:
                 return <GenerationView title='Currently applied generation' gen={event.data.generation} />;
+            case LogConversationActions.SENDING_MESSAGE:
+                return (
+                    <div className='text-sm flex flex-col gap-4'>
+                        <div>{event.data.message}</div>
+                        {event.data.editedMessage.length > 0 ? 'Edited message' : ''}
+                    </div>
+                );
+            case LogConversationActions.GOT_SCREENSHOT:
+                return (
+                    <div className='flex flex-col gap-4 max-h-32'>
+                        <img src={event.data.screenshot} alt='Screenshot' />
+                    </div>
+                );
             default:
                 // For unhandled or generic events, simply displaying the timestamp
                 return (
