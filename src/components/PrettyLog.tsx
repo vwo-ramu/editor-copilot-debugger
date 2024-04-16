@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 
 import { Icon } from '@iconify/react';
 
@@ -22,6 +22,7 @@ import { Tabs, Tab } from '@nextui-org/tabs';
 import { Avatar } from '@nextui-org/avatar';
 import { Button } from '@nextui-org/button';
 import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from '@nextui-org/modal';
+import { Snippet } from '@nextui-org/snippet';
 
 const GenerationView = ({ title, gen }: { title: string; gen: ConversationGeneration }) => (
     <Card>
@@ -112,11 +113,14 @@ const MessageBubbleView = ({ msg }: { msg: ConversationUserMessage | Conversatio
 };
 
 const PrettyLog = ({ data }: { data: LogData }) => {
+    const [parsingErrors, setParsingErrors] = useState<{ conversationId: string; data: string[] }[] | null>(null);
+
     // expensive transformation of data to pretty log
     const prettyLogs = useMemo(() => {
-        console.log('PrettyLog :: expensive transformation of data to pretty log', data);
+        console.info('PrettyLog :: expensive transformation of data to pretty log', data);
 
         const prettyLogs: { conversationId: string; data: ConversationEvent[] }[] = [];
+        const parsingErrors: { conversationId: string; data: string[] }[] = [];
         for (const key in data.conversationLog) {
             // ignore 'no_conversation_id' key
             if (key === 'no_conversation_id') continue;
@@ -125,90 +129,128 @@ const PrettyLog = ({ data }: { data: LogData }) => {
             const conversation = data.conversationLog[key];
 
             const tempGroupData: ConversationEvent[] = [];
+            const tempParsingErrors: string[] = [];
+
             for (let convEvent of conversation) {
                 const convEventData = convEvent.data;
 
                 if (convEvent.message === LogConversationActions.AI_RESPONSE) {
-                    tempGroupData.push({
-                        message: LogConversationActions.AI_RESPONSE,
-                        timestamp: new Date(convEvent.timestamp),
-                        data: {
-                            user: {
-                                message: convEventData.for.content.text,
-                                img: convEventData.for.content.screenshot,
+                    try {
+                        tempGroupData.push({
+                            message: LogConversationActions.AI_RESPONSE,
+                            timestamp: new Date(convEvent.timestamp),
+                            data: {
+                                user: {
+                                    message: convEventData.for.content.text,
+                                    img: convEventData.for.content.screenshot,
+                                },
+                                bot: {
+                                    message: JSON.stringify(convEventData.fullRespones.content, null, 2),
+                                },
                             },
-                            bot: {
-                                message: JSON.stringify(convEventData.fullRespones.content, null, 2),
-                            },
-                        },
-                    });
+                        });
+                    } catch (e) {
+                        const errorContext = `[PrettyLog] :: Error in AI_RESPONSE, skipping it`;
+                        console.error(errorContext, e);
+                        tempParsingErrors.push(errorContext);
+                    }
                     continue;
                 }
 
                 if (convEvent.message === LogConversationActions.PRE_PROCESS_GENERATIONS) {
-                    tempGroupData.push({
-                        message: LogConversationActions.PRE_PROCESS_GENERATIONS,
-                        timestamp: new Date(convEvent.timestamp),
-                        data: {
-                            message: convEventData.modifications?.message || '[PrettyLog] No message found',
-                            generations: convEventData.modifications?.generations || [],
-                        },
-                    });
+                    try {
+                        tempGroupData.push({
+                            message: LogConversationActions.PRE_PROCESS_GENERATIONS,
+                            timestamp: new Date(convEvent.timestamp),
+                            data: {
+                                message: convEventData.modifications?.message || '[PrettyLog] No message found',
+                                generations: convEventData.modifications?.generations || [],
+                            },
+                        });
+                    } catch (e) {
+                        const errorContext = `[PrettyLog] :: Error in PRE_PROCESS_GENERATIONS, skipping it`;
+                        console.error(errorContext, e);
+                        tempParsingErrors.push(errorContext);
+                    }
                     continue;
                 }
 
                 if (convEvent.message === LogConversationActions.AI_RESPONSE_ADDED) {
-                    tempGroupData.push({
-                        message: LogConversationActions.AI_RESPONSE_ADDED,
-                        timestamp: new Date(convEvent.timestamp),
-                        data: {
-                            user: {
-                                role: 'user',
-                                message: convEventData.userMessage.content.text,
-                                img: convEventData.userMessage.content.screenshot,
+                    try {
+                        tempGroupData.push({
+                            message: LogConversationActions.AI_RESPONSE_ADDED,
+                            timestamp: new Date(convEvent.timestamp),
+                            data: {
+                                user: {
+                                    role: 'user',
+                                    message: convEventData.userMessage.content.text,
+                                    img: convEventData.userMessage.content.screenshot,
+                                },
+                                bot: {
+                                    role: 'bot',
+                                    message: convEventData.botMessage.content.text,
+                                    generations: convEventData.botMessage.content.generations,
+                                },
+                                conversationMessages: convEventData.conversation.messages,
                             },
-                            bot: {
-                                role: 'bot',
-                                message: convEventData.botMessage.content.text,
-                                generations: convEventData.botMessage.content.generations,
-                            },
-                            conversationMessages: convEventData.conversation.messages,
-                        },
-                    });
+                        });
+                    } catch (e) {
+                        const errorContext = `[PrettyLog] :: Error in AI_RESPONSE_ADDED, skipping it`;
+                        console.error(errorContext, e);
+                        tempParsingErrors.push(errorContext);
+                    }
                     continue;
                 }
 
                 if (convEvent.message === LogConversationActions.GENERATION_APPLIED) {
-                    tempGroupData.push({
-                        message: LogConversationActions.GENERATION_APPLIED,
-                        timestamp: new Date(convEvent.timestamp),
-                        data: {
-                            generation: convEventData.generation,
-                        },
-                    });
+                    try {
+                        tempGroupData.push({
+                            message: LogConversationActions.GENERATION_APPLIED,
+                            timestamp: new Date(convEvent.timestamp),
+                            data: {
+                                generation: convEventData.generation,
+                            },
+                        });
+                    } catch (e) {
+                        const errorContext = `[PrettyLog] :: Error in GENERATION_APPLIED, skipping it`;
+                        console.error(errorContext, e);
+                        tempParsingErrors.push(errorContext);
+                    }
                     continue;
                 }
 
                 if (convEvent.message === LogConversationActions.SENDING_MESSAGE) {
-                    tempGroupData.push({
-                        message: LogConversationActions.SENDING_MESSAGE,
-                        timestamp: new Date(convEvent.timestamp),
-                        data: {
-                            message: convEventData.message,
-                            editedMessage: convEventData.editedMessage,
-                        },
-                    });
+                    try {
+                        tempGroupData.push({
+                            message: LogConversationActions.SENDING_MESSAGE,
+                            timestamp: new Date(convEvent.timestamp),
+                            data: {
+                                message: convEventData.message,
+                                editedMessage: convEventData.editedMessage,
+                            },
+                        });
+                    } catch (e) {
+                        const errorContext = `[PrettyLog] :: Error in SENDING_MESSAGE, skipping it`;
+                        console.error(errorContext, e);
+                        tempParsingErrors.push(errorContext);
+                    }
                     continue;
                 }
 
                 if (convEvent.message === LogConversationActions.GOT_SCREENSHOT) {
-                    tempGroupData.push({
-                        message: LogConversationActions.GOT_SCREENSHOT,
-                        timestamp: new Date(convEvent.timestamp),
-                        data: {
-                            screenshot: convEventData.currentElementScreenshot,
-                        },
-                    });
+                    try {
+                        tempGroupData.push({
+                            message: LogConversationActions.GOT_SCREENSHOT,
+                            timestamp: new Date(convEvent.timestamp),
+                            data: {
+                                screenshot: convEventData.currentElementScreenshot,
+                            },
+                        });
+                    } catch (e) {
+                        const errorContext = `[PrettyLog] :: Error in GOT_SCREENSHOT, skipping it`;
+                        console.error(errorContext, e);
+                        tempParsingErrors.push(errorContext);
+                    }
                     continue;
                 }
 
@@ -221,69 +263,92 @@ const PrettyLog = ({ data }: { data: LogData }) => {
                 });
             }
             prettyLogs.push({ conversationId, data: tempGroupData });
+            parsingErrors.push({ conversationId, data: tempParsingErrors });
         }
-        console.log('PrettyLog :: prettyLogs', prettyLogs);
+        setParsingErrors(parsingErrors);
+        console.error('PrettyLog :: parsingErrors', parsingErrors);
+        console.info('PrettyLog :: prettyLogs', prettyLogs);
         return prettyLogs;
     }, [data]);
 
     const displayAccordionItemContent = (event: ConversationEvent) => {
-        switch (event.message) {
-            case LogConversationActions.AI_RESPONSE:
-                return (
-                    <div className='text-sm flex flex-col gap-4'>
-                        <div className='font-semibold'>User</div>
-                        <ScrollShadow className='w-full max-h-80'>{event.data.user.message}</ScrollShadow>
-                        <Divider />
-                        <div className='font-semibold'>Bot</div>
-                        <ScrollShadow className='w-full max-h-80'>
-                            <pre>{event.data.bot.message}</pre>
-                        </ScrollShadow>
-                    </div>
-                );
-            case LogConversationActions.PRE_PROCESS_GENERATIONS:
-                return (
-                    <div className='flex flex-col gap-4'>
-                        {event.data.generations.map((gen, i) => (
-                            <GenerationView key={i} title={`Generation ${i + 1}`} gen={gen} />
-                        ))}
-                    </div>
-                );
-            case LogConversationActions.AI_RESPONSE_ADDED:
-                return (
-                    <div className='flex flex-col gap-4'>
-                        <MessageBubbleView msg={event.data.user} />
-                        <MessageBubbleView msg={event.data.bot} />
-                        <Button
-                            color='primary'
-                            variant='ghost'
-                            onClick={() => console.log(event.data.conversationMessages)}>
-                            Console log messages till now
-                        </Button>
-                    </div>
-                );
-            case LogConversationActions.GENERATION_APPLIED:
-                return <GenerationView title='Currently applied generation' gen={event.data.generation} />;
-            case LogConversationActions.SENDING_MESSAGE:
-                return (
-                    <div className='text-sm flex flex-col gap-4'>
-                        <div>{event.data.message}</div>
-                        {event.data.editedMessage.length > 0 ? 'Edited message' : ''}
-                    </div>
-                );
-            case LogConversationActions.GOT_SCREENSHOT:
-                return (
-                    <div className='flex flex-col gap-4 max-h-32'>
-                        <img src={event.data.screenshot} alt='Screenshot' />
-                    </div>
-                );
-            default:
-                // For unhandled or generic events, simply displaying the timestamp
-                return (
-                    <div className='flex flex-col gap-4'>
-                        <div>{event.data.message}</div>
-                    </div>
-                );
+        try {
+            switch (event.message) {
+                case LogConversationActions.AI_RESPONSE:
+                    return (
+                        <div className='text-sm flex flex-col gap-4'>
+                            <div className='font-semibold'>User</div>
+                            <ScrollShadow className='w-full max-h-80'>{event.data.user.message}</ScrollShadow>
+                            <Divider />
+                            <div className='font-semibold'>Bot</div>
+                            <ScrollShadow className='w-full max-h-80'>
+                                <pre>{event.data.bot.message}</pre>
+                            </ScrollShadow>
+                        </div>
+                    );
+                case LogConversationActions.PRE_PROCESS_GENERATIONS:
+                    return (
+                        <div className='flex flex-col gap-4'>
+                            {event.data.generations.map((gen, i) => (
+                                <GenerationView key={i} title={`Generation ${i + 1}`} gen={gen} />
+                            ))}
+                        </div>
+                    );
+                case LogConversationActions.AI_RESPONSE_ADDED:
+                    return (
+                        <div className='flex flex-col gap-4'>
+                            <MessageBubbleView msg={event.data.user} />
+                            <MessageBubbleView msg={event.data.bot} />
+                            <Button
+                                color='primary'
+                                variant='ghost'
+                                onClick={() => console.info(event.data.conversationMessages)}>
+                                Console log messages till now
+                            </Button>
+                        </div>
+                    );
+                case LogConversationActions.GENERATION_APPLIED:
+                    return <GenerationView title='Currently applied generation' gen={event.data.generation} />;
+                case LogConversationActions.SENDING_MESSAGE:
+                    return (
+                        <div className='text-sm flex flex-col gap-4'>
+                            <div>{event.data.message}</div>
+                            {event.data.editedMessage.length > 0 ? 'Edited message' : ''}
+                        </div>
+                    );
+                case LogConversationActions.GOT_SCREENSHOT:
+                    return (
+                        <div className='flex flex-col gap-4 max-h-32'>
+                            <img src={event.data.screenshot} alt='Screenshot' />
+                        </div>
+                    );
+                default:
+                    // For unhandled or generic events, simply displaying the timestamp
+                    return (
+                        <div className='flex flex-col gap-4'>
+                            <div>{event.data.message}</div>
+                        </div>
+                    );
+            }
+        } catch (e) {
+            console.error('[PrettyLog] :: Error in rendering content', e);
+            return <div className='text-danger'>Error in rendering content</div>;
         }
+    };
+
+    const displayErrors = (errors: string[] | undefined) => {
+        // will not occur, to make ts happy
+        if (!errors) return null;
+        // no errors
+        if (errors.length === 0) return null;
+
+        return (
+            <Snippet color='danger' symbol='🚩' hideCopyButton>
+                {errors.map((error, i) => (
+                    <span key={i}>{error}</span>
+                ))}
+            </Snippet>
+        );
     };
 
     return (
@@ -293,6 +358,10 @@ const PrettyLog = ({ data }: { data: LogData }) => {
                     <Chip color='secondary' variant='bordered'>
                         Conversation ID: {log.conversationId}
                     </Chip>
+
+                    {parsingErrors &&
+                        displayErrors(parsingErrors.find((e) => e.conversationId === log.conversationId)?.data)}
+
                     <Accordion selectionMode='multiple' variant='bordered'>
                         {log.data.map((d, i: number) => (
                             <AccordionItem
