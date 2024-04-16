@@ -150,8 +150,8 @@ const PrettyLog = ({ data }: { data: LogData }) => {
                         message: LogConversationActions.PRE_PROCESS_GENERATIONS,
                         timestamp: new Date(convEvent.timestamp),
                         data: {
-                            message: convEventData.modifications.message,
-                            generations: convEventData.modifications.generations,
+                            message: convEventData.modifications?.message || '[PrettyLog] No message found',
+                            generations: convEventData.modifications?.generations || [],
                         },
                     });
                     continue;
