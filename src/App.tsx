@@ -5,6 +5,7 @@ import { Link } from '@nextui-org/link';
 import { Button } from '@nextui-org/button';
 import { Tabs, Tab } from '@nextui-org/tabs';
 import { Card, CardBody } from '@nextui-org/card';
+import { ToastContainer } from 'react-toastify';
 
 import vwoWhiteLogo from './assets/vwo-logo-white.svg';
 
@@ -75,6 +76,9 @@ function App() {
                     </Tabs>
                 </div>
             </div>
+
+            {/* Toast notifications */}
+            <ToastContainer />
         </>
     );
 }

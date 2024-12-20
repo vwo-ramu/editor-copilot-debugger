@@ -12,6 +12,7 @@
 import { ChangeEvent, DragEvent, useCallback, useState } from 'react';
 import Papa from 'papaparse';
 import { LogData } from '../types';
+import { toast } from 'react-toastify';
 
 export const FileUpload = ({updateLogData}: {updateLogData: (data: LogData)=>void}) => {
     const [dragging, setDragging] = useState(false);
@@ -41,6 +42,11 @@ export const FileUpload = ({updateLogData}: {updateLogData: (data: LogData)=>voi
     }, []);
 
     const transformData = (d: any): LogData => {
+        if (!d || !d.length) {
+            toast.error('No data found in the file');
+            throw new Error('No data found in the file');
+        }
+        
         const data = d[0];
         // transform data to logdata
         return {
@@ -54,8 +60,14 @@ export const FileUpload = ({updateLogData}: {updateLogData: (data: LogData)=>voi
     }
 
     const processFile = (file: File) => {
+        if (!file) {
+            toast.error('Did not receive a file');
+            return;
+        };
+
         if (file.type !== 'text/csv') {
             setError('Please upload a CSV file.');
+            toast.error('Please upload a CSV file.');
             return;
         }
 
