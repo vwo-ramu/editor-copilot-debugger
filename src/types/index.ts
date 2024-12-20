@@ -1,5 +1,6 @@
 // define interface for log data of some appilocation used to import and visualize in our application
-export interface LogData {
+export interface EditorLogV1Data {
+    type: 'editor-v1';
     campaignId: string;
     variationId: string;
     selector: string;
@@ -13,6 +14,26 @@ export interface LogData {
         }[];
     };
 }
+
+export interface EditorLogV2Data {
+    type: 'editor-v2';
+    accountId: string;
+    userId: string;
+    userEmail: string;
+    campaignId: string;
+    variationId: string;
+    selector: string;
+    targetUrl: string;
+    conversationHistory: any[];
+    timestamp: string;
+}
+  
+export interface GenericLogData {
+    type: 'generic';
+    data: Record<string, string>;
+}
+  
+export type LogData = EditorLogV1Data | EditorLogV2Data | GenericLogData;
 
 export interface ConversationGeneration {
     css: string;

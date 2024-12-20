@@ -48,14 +48,45 @@ export const FileUpload = ({updateLogData}: {updateLogData: (data: LogData)=>voi
         }
         
         const data = d[0];
-        // transform data to logdata
+        const headers = Object.keys(d[0]);
+
+        // Check if it's an editor debug log or generic log
+        const isEditorLog = headers.includes('Conversation History') || headers.includes('conversationLog');
+
+
+        if (isEditorLog) {
+            const isV1 = headers.includes('conversationLog');
+
+            if (isV1) {
+                return {
+                    type: 'editor-v1',
+                    campaignId: data['Campaign ID'],
+                    variationId: data.variationId,
+                    selector: data['ElementOverWhichAIEditorWasOpen'],
+                    conversationId: data.conversationId,
+                    pageURL: data.pageURL,
+                    conversationLog: JSON.parse(data.conversationLog),
+                };
+            }
+
+            return {
+                type: 'editor-v2',
+                accountId: data['Account ID'],
+                userId: data['User ID'],
+                userEmail: data['User Email'],
+                campaignId: data['Campaign ID'],
+                variationId: data['Variation ID'],
+                selector: data['Element Info'],
+                targetUrl: data['Target URL'],
+                conversationHistory: data['Conversation History'],
+                timestamp: data['Timestamp']
+            };
+        }
+    
+        // Handle generic CSV
         return {
-            campaignId: data['Campaign ID'],
-            variationId: data.variationId,
-            selector: data['ElementOverWhichAIEditorWasOpen'],
-            conversationId: data.conversationId,
-            pageURL: data.pageURL,
-            conversationLog: JSON.parse(data.conversationLog),
+            type: 'generic',
+            data: data
         };
     }
 
