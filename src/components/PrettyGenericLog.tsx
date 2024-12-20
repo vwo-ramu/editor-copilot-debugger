@@ -9,7 +9,7 @@ interface PrettyGenericLogProps {
 const PrettyGenericLog = ({data}: PrettyGenericLogProps) => {
     return (
         <div className="flex flex-col gap-2">
-            <Chip size="sm">Editor Log V2</Chip>
+            <Chip size="sm">Generic Logs</Chip>
             {Object.entries(data.data).map(([key, value]) => (
                 <Card key={key} shadow="sm">
                     <CardBody className="flex flex-col gap-4">
